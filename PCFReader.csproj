@@ -43,13 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DMX\DmAttributeType.cs" />
+    <Compile Include="DMX\DMXDeserialiser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StreamExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DmAttribute.cpp" />
     <Content Include="DMXLoader.cpp" />
     <Content Include="UtlBuffer.cpp" />
   </ItemGroup>
