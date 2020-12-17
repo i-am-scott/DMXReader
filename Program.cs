@@ -38,6 +38,18 @@ namespace PCFReader
         {
             return new string(r.ReadChars(count));
         }
+
+        public static string ReadUString(this BinaryReader r, int count)
+        {
+            return Encoding.ASCII.GetString(r.ReadBytes(count));
+        }
+    }
+
+    public class DXElement
+    {
+        public string Id;
+        public string Type;
+        public string Name;
     }
 
     public class ParticleInfo
@@ -150,9 +162,7 @@ namespace PCFReader
             if (readStringTable)
                 stringCount = header.EncodingVersion >= DMX_BINARY_VER_GLOBAL_STRINGTABLE ? reader.ReadInt32() : reader.ReadInt16();
 
-            string[] stringTable = null;
-            if (stringCount > 0)
-                stringTable = GetStringTable(reader, stringCount);
+            string[] stringTable = stringCount == 0 ? null : GetStringTable(reader, stringCount);
 
             int elementCount = reader.ReadInt32();
             if (elementCount == 0)
@@ -161,17 +171,22 @@ namespace PCFReader
             if (elementCount < 0 || (readStringTable && stringTable == null))
                 return false;
 
+            DXElement[] elements = new DXElement[elementCount];
+
             for (int i = 0; i < elementCount; ++i)
             {
-                string name;
-                if (stringTable != null)
-                {
-                    name = GetStringFromBuffer(reader, useLargeSymbols, stringTable);
-                }
-                else
-                    name = reader.ReadString(256);
+                string type = stringTable != null ? GetStringFromBuffer(reader, useLargeSymbols, stringTable) : reader.ReadString(256);
+                string name = (readStringTable && header.EncodingVersion > DMX_BINARY_VER_GLOBAL_STRINGTABLE) ? GetStringFromBuffer(reader, useLargeSymbols, stringTable) : reader.ReadTerminatedString();
+                string id = BitConverter.ToString(reader.ReadBytes(16));
 
-                Console.WriteLine("From Buffer: " + name);
+                elements[i] = new DXElement
+                {
+                    Id = id,
+                    Type = type,
+                    Name = name
+                };
+
+                Console.WriteLine($"{id} - {type} - {name}");
             }
 
             return true;
@@ -180,8 +195,6 @@ namespace PCFReader
         private string GetStringFromBuffer(BinaryReader reader, bool useLargeSymbols, string[] stringTables)
         {
             int i = useLargeSymbols ? reader.ReadInt32() : reader.ReadInt16();
-            Console.WriteLine(i);
-
             return (i > stringTables.Length || i < 0) ? null : stringTables[i];
         }
 
@@ -190,9 +203,7 @@ namespace PCFReader
             string[] stringTable = new string[stringCount];
 
             for (int i = 0; i < stringCount; i++)
-            {
                 stringTable[i] = reader.ReadTerminatedString();
-            }
 
             return stringTable;
         }
