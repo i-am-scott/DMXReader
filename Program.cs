@@ -28,8 +28,19 @@ namespace PCFReader
     {
         static void Main(string[] args)
         {
-            PFC particleFile = new PFC("smissmas2020_unusuals.pcf");
+#if DEBUG
+            PFC particleFile = new PFC("example.pcf");
             particleFile.Load();
+#else
+            if(args == null || args.Length == 0)
+            {
+                Console.WriteLine("Please drag and drop a pfc file onto this exe.");
+                return;
+            }
+
+            PFC particleFile = new PFC(args[0]);
+            particleFile.Load();
+#endif
 
             Console.ReadLine();
         }
