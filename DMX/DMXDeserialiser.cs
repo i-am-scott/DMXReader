@@ -93,8 +93,9 @@ namespace DMXReader.DMX
         private bool IsGlobalStringTable => (ReadStringTable && header.EncodingVersion >= DMX_BINARY_VER_GLOBAL_STRINGTABLE);
 
         private string[] StringTable;
-
         private BinaryReader reader;
+
+        public DXElement[] Elements;
 
         public Deserialiser(string path)
         {
@@ -130,10 +131,10 @@ namespace DMXReader.DMX
             return header.Format == "pcf";
         }
 
-        public bool Unserialize()
+        public DXElement Unserialize()
         {
             if (!ReadHeader())
-                return false;
+                return null;
 
             if (header.IsBinary)
             {
@@ -142,21 +143,21 @@ namespace DMXReader.DMX
             else
             {
                 Console.WriteLine("Only binary files are currently supported.");
-                return false;
+                return null;
             }
         }
 
-        private bool Unserialize(BinaryReader reader)
+        private DXElement Unserialize(BinaryReader reader)
         {
             if (header.EncodingVersion < 0 || header.EncodingVersion > CURRENT_BINARY_ENCODING)
-                return false;
+                return null;
 
             reader.BaseStream.Seek(header.Length, SeekOrigin.Begin);
 
             while (reader.ReadChar() != 0)
             {
                 if (reader.BaseStream.Position >= reader.BaseStream.Length)
-                    return false;
+                    return null;
             }
 
             int stringCount = 0;
@@ -167,16 +168,17 @@ namespace DMXReader.DMX
 
             int elementCount = reader.ReadInt32();
             if (elementCount == 0)
-                return true;
+                return null;
 
             if (elementCount < 0 || (ReadStringTable && StringTable == null))
-                return false;
+                return null;
 
             DXElement[] elements = new DXElement[elementCount];
             ReadElements(ref elements);
             ReadAttributes(ref elements);
 
-            return true;
+            Elements = elements;
+            return Elements[0];
         }
 
         private void ReadElements(ref DXElement[] elements)
@@ -271,8 +273,7 @@ namespace DMXReader.DMX
                     AttributeUnseriailizeDefault(attribute);
                     break;
             }
-
-            Console.WriteLine(attribute);
+;
             return true;
         }
 
