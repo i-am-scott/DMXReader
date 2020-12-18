@@ -1,4 +1,4 @@
-﻿namespace PCFReader.DMX
+﻿namespace DMXReader.DMX
 {
     public enum DmAttributeType_t
     {

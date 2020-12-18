@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace PCFReader.DMX
+namespace DMXReader.DMX
 {
     public class DXElement
     {

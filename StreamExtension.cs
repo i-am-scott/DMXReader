@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace PCFReader
+namespace DMXReader
 {
     public static class StreamExtension
     {

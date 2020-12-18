@@ -1,45 +1,25 @@
 ﻿using System;
-using System.IO;
-using PCFReader.DMX;
+using DMXReader.DMX;
 
-namespace PCFReader
+namespace DMXReader
 {
-    public class PFC
-    {
-        protected string FileName;
-        protected string FilePath;
-
-        public PFC(string path)
-        {
-            FilePath = path;
-            FileName = Path.GetFileName(path);
-        }
-
-        public void Load()
-        {
-            Deserialiser dmx = new Deserialiser(FilePath);
-            dmx.Unserialize();
-        }
-
-        public override string ToString() => "";
-    }
-
     class Program
     {
         static void Main(string[] args)
         {
+
 #if DEBUG
-            PFC particleFile = new PFC("example.pcf");
-            particleFile.Load();
+            Deserialiser dmx = new Deserialiser("example.pcf");
+            dmx.Unserialize();
 #else
-            if(args == null || args.Length == 0)
+            if (args == null || args.Length == 0)
             {
-                Console.WriteLine("Please drag and drop a pfc file onto this exe.");
+                Console.WriteLine("Please drag and drop a pcf file onto this exe.");
                 return;
             }
 
-            PFC particleFile = new PFC(args[0]);
-            particleFile.Load();
+            Deserialiser dmx = new Deserialiser(args[0]);
+            dmx.Unserialize();
 #endif
 
             Console.ReadLine();

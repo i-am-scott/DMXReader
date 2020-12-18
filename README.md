@@ -1,3 +1,3 @@
-# PCFReader
+# DMXReader
 
-Start of a DMX unserialiser for use with reading PFCs for SuperiorServers tools.
+Start of a DMX unserialiser used to read Valve DMX files for SuperiorServers tooling

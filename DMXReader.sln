@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCFReader", "PCFReader.csproj", "{6BA7EF39-9DAD-4F6F-A605-FD9885D273F9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMXReader", "DMXReader.csproj", "{6BA7EF39-9DAD-4F6F-A605-FD9885D273F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
