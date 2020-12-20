@@ -83,8 +83,8 @@ namespace DMXReader.DMX
         readonly int ELEMENT_INDEX_NULL = -1;
         readonly int ELEMENT_INDEX_EXTERNAL = -2;
 
-        protected string FilePath;
-        protected string FileName;
+        public string FilePath { protected set; get; }
+        public string FileName { protected set; get; }
 
         protected DMXHeader header;
 
@@ -96,6 +96,7 @@ namespace DMXReader.DMX
         private BinaryReader reader;
 
         public DXElement[] Elements;
+        public DXElement RootElement => Elements[0];
 
         public Deserialiser(string path)
         {

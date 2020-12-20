@@ -1,6 +1,6 @@
-﻿using System;
+﻿using DMXReader.DMX;
+using System;
 using System.Collections.Generic;
-using DMXReader.DMX;
 
 namespace DMXReader
 {
@@ -8,14 +8,19 @@ namespace DMXReader
     {
         static string Tab(int i = 0)
         {
-           return new string('\t', i);
+            return new string('\t', i);
         }
 
-        static List<object> PrintElement(DXElement element, string name = null)
+        static bool DisplayInfo = true;
+        static void Log(string str)
         {
-            List<object> foundAttributeValues = new List<object>();
+            if (DisplayInfo)
+                Console.WriteLine(str);
+        }
 
-            Console.WriteLine($"[Root Element: {element.Id} | {element.Type} - {element.Name}]");
+        static List<object> PrintElement(DXElement element, ref List<object> foundAttributeValues, string name = null)
+        {
+            Log($"[Root Element: {element.Id} | {element.Type} - {element.Name}]");
             PrintAttributes(element.Attributes, depth: 0, find: name, foundAttributeValues: ref foundAttributeValues);
 
             return foundAttributeValues;
@@ -25,7 +30,7 @@ namespace DMXReader
         {
             foreach (DXElement element in elements)
             {
-                Console.WriteLine($"{Tab(depth)}[Element: {element.Id} | {element.Type} - {element.Name}]");
+                Log($"{Tab(depth)}[Element: {element.Id} | {element.Type} - {element.Name}]");
                 PrintAttributes(element.Attributes, depth: depth, find: find, foundAttributeValues: ref foundAttributeValues);
             }
         }
@@ -43,7 +48,7 @@ namespace DMXReader
                     }
                     else
                     {
-                        Console.WriteLine($"{Tab(depth)}\t[Attributes: {attribute.Name} - {attribute.Value}]");
+                        Log($"{Tab(depth)}\t[Attributes: {attribute.Name} - {attribute.Value}]");
                     }
                 }
             }
@@ -63,10 +68,12 @@ namespace DMXReader
 
         static void Main(string[] args)
         {
-            Deserialiser dmx;
+            List<Deserialiser> dmxList = new List<Deserialiser>();
 
 #if DEBUG
-            dmx = new Deserialiser("example.pcf");
+            Deserialiser dmx = new Deserialiser("example.pcf");
+            dmx.Unserialize();
+            dmxList.Add(dmx);
 #else
             if (args == null || args.Length == 0)
             {
@@ -74,38 +81,54 @@ namespace DMXReader
                 return;
             }
 
-            dmx = new Deserialiser(args[0]);
+            for (int i = 0; i < args.Length; ++i)
+            {
+                Deserialiser dmx = new Deserialiser(args[i]);
+                dmx.Unserialize();
+                dmxList.Add(dmx);
+            }
 #endif
 
-            DXElement root = dmx.Unserialize();
-
-            Console.WriteLine("Type exit, print or list");
+            Console.WriteLine("Type exit, print or search");
 
             bool cycle = true;
-            while(cycle)
+            while (cycle)
             {
-                string input = Console.ReadLine().ToLower();
-                switch(input)
+                string input = Console.ReadLine().ToLower().Trim();
+                switch (input)
                 {
                     case "exit":
                         cycle = false;
                         break;
                     case "print":
-                        PrintElement(root);
-                        break;
-                    case "list":
-                        Console.Write("Type the attribute name to list: ");
-                        string name = Console.ReadLine();
-                        List<object> values = PrintElement(root, name);
-                        string output = "";
-
-                        foreach (object value in values)
+                        DisplayInfo = true;
+                        dmxList.ForEach(dmx =>
                         {
-                            Console.WriteLine(value);
-                            output += value + Environment.NewLine;
-                        }
+                            Console.WriteLine(dmx.FileName);
+                            // TODO: This is dumb
+                            List<object> foundList = new List<object>();
+                            PrintElement(dmx.RootElement, ref foundList);
+                        });
+                        break;
+                    case "search":
+                        Console.Write("Type the attribute name to list: ");
+                        string name = Console.ReadLine().Trim();
 
-                        System.IO.File.WriteAllText("output.txt", output);
+                        DisplayInfo = false;
+
+                        string output = "";
+                        List<object> foundAttributeValues = new List<object>();
+                        dmxList.ForEach(dmx =>
+                        {
+                            List<object> values = PrintElement(dmx.RootElement, ref foundAttributeValues, name);
+                            foreach (object value in values)
+                            {
+                                Console.WriteLine(value);
+                                output += value + Environment.NewLine;
+                            }
+                        });
+
+                        System.IO.File.WriteAllText("dmxsearch.txt", output);
                         break;
                 }
             }
